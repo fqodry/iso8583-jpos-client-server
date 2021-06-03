@@ -2,11 +2,10 @@ package id.mbingweb.jposiso8583;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jpos.iso.FilteredChannel;
+import org.jpos.iso.BaseChannel;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISOPackager;
@@ -21,14 +20,12 @@ import org.jpos.iso.packager.ISO93APackager;
  */
 public class JPosClient {
     
-    public static void run() throws ISOException, IOException {
-        String hostname = "localhost";
-        int portNumber = 12345;
+    public static void run(String hostname, int portNumber) throws ISOException, IOException {
         
         // membuat sebuah packager
         //ISOPackager packager = new GenericPackager("packager/iso93ascii.xml");
         // membuat channel
-        FilteredChannel channel = new ASCIIChannel(hostname, portNumber, new ISO93APackager());
+        BaseChannel channel = new ASCIIChannel(hostname, portNumber, new ISO93APackager());
         // initialize DelayFilter to delay message in 5 second
         DelayFilter delayFilter = new DelayFilter(5000);
         // assign the filter
@@ -36,6 +33,7 @@ public class JPosClient {
         
         try {
             channel.connect();
+            channel.setTimeout(30000);
             ISOMsg msg = JPosClient.createMsg();
             channel.send(msg);
             
@@ -59,6 +57,8 @@ public class JPosClient {
             }
         } catch(IOException | ISOException ex) {
             Logger.getLogger(JPosServer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            channel.disconnect();
         }
     }
     
@@ -70,7 +70,7 @@ public class JPosClient {
         msg.set(11, "000001");
         msg.set(12, new SimpleDateFormat("HHmmss").format(new Date()));
         msg.set(13, new SimpleDateFormat("MMdd").format(new Date()));
-        msg.set(48, "Tutorial ISO 8583 Dengan Java + jPos Library");
+        msg.set(48, "ini pesan dari dummy client, terima kasih.");
         msg.set(70, "001");
         
         return msg;

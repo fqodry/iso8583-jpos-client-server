@@ -8,6 +8,7 @@
         <version>2.5.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <packaging>war</packaging>
     <groupId>id.mbingweb</groupId>
     <artifactId>jpos-iso8583-client-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -33,13 +34,18 @@
             <scope>test</scope>
         </dependency>
         
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.jpos/jpos -->
         <dependency>
             <groupId>org.jpos</groupId>
             <artifactId>jpos</artifactId>
             <version>2.1.6</version>
         </dependency>
-
     </dependencies>
 
     <build>

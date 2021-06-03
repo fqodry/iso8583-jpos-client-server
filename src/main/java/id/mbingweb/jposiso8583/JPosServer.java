@@ -1,6 +1,8 @@
 package id.mbingweb.jposiso8583;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jpos.iso.BaseChannel;
@@ -21,21 +23,26 @@ import org.jpos.iso.packager.ISO93APackager;
  */
 public class JPosServer implements ISORequestListener {
     
-    public static void run() throws ISOException {
-        String hostname = "localhost";
-        int portNumber = 12345;
+    public static void run(String hostname, int portNumber) throws ISOException {
         
         // membuat sebuah packager
-        //ISOPackager packager = new GenericPackager("packager/iso93ascii.xml");
-        // membuat channel
+        // ISOPackager packager = new GenericPackager("packager/iso93ascii.xml");
+        
+        // membuat channel (read from built-in packager, not from file)
         ServerChannel channel = new ASCIIChannel(hostname, portNumber, new ISO93APackager());
         // membuat server
         ISOServer server = new ISOServer(portNumber, channel, null);
         server.addISORequestListener(new JPosServer());
         
-        new Thread(server).start();
+        Thread jposSrv = new Thread(server, "JPosServer");
+        jposSrv.start();
         
-        System.out.println("Server siap menerima koneksi pada port ["+ portNumber +"]");
+        if (jposSrv.isAlive()) {
+            System.out.println("Server siap menerima koneksi pada port ["+ portNumber +"]");
+        } else {
+            System.out.println("Oops, server gagal dijalankan...");
+        }
+        
     }
 
     @Override
@@ -67,7 +74,7 @@ public class JPosServer implements ISORequestListener {
         ISOMsg reply = (ISOMsg) isomsg.clone();
         reply.setMTI("1810");
         reply.set(39, "00");
-        reply.set(48, "Hello World! Ini response dari server jPos ya!");
+        reply.set(48, "Halo! Ini response dari server jPos ya!");
         
         isos.send(reply);
     }
